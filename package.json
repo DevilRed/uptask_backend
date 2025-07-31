@@ -1,0 +1,47 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "rimraf dist && pkgroll --minify",
+    "lint": "eslint . --ext .ts ./src"
+  },
+  "keywords": [],
+  "author": "Christian <chrisdaq@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.32.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
+    "eslint-config-love": "^121.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "pkgroll": "^2.15.0",
+    "prettier": "^3.6.2",
+    "rimraf": "^4.4.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "exports": "./dist/index.js",
+  "private": "true",
+  "repository": {
+    "type": "git"
+  }
+}
