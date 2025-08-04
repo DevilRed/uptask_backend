@@ -1,12 +1,12 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Document } from "mongoose";
 
-type ProjectType = {
+export interface IProject extends Document {
   projectName: string;
   clientName: string;
   description: string;
-};
+}
 
-const ProjectSchema = new Schema<ProjectType>(
+const ProjectSchema = new Schema<IProject>(
   {
     projectName: { type: String, required: true },
     clientName: { type: String, required: true },
@@ -15,6 +15,6 @@ const ProjectSchema = new Schema<ProjectType>(
   { timestamps: true },
 );
 
-const Project = model<ProjectType>("Project", ProjectSchema);
+const Project = model<IProject>("Project", ProjectSchema);
 
 export default Project;
