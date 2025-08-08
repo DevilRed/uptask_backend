@@ -8,10 +8,13 @@ export class TaskController {
       const task = new Task(req.body);
 			// add project to task, project.id is of ObjectId type
       task.project = req.project._id as Types.ObjectId;
-      await task.save();
+      // await task.save();
 			// add task to project, task.id is ObjectId type
       req.project.tasks.push(task._id as Types.ObjectId);
-      await req.project.save();
+      // await req.project.save();
+
+      // improve performance by refactoring multiple await  by running all of them all at once since they are not dependent
+      await Promise.allSettled([task.save(), req.project.save()])
       res.status(201).json(task);
     } catch (error) {
       console.log(error);
