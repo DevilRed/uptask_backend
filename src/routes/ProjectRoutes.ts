@@ -54,6 +54,7 @@ router.get('/:projectId/tasks',
 
 router.get('/:projectId/tasks/:id',
   param("id").isMongoId().withMessage("Invalid task ID"),
+  handleInputErrors,
   TaskController.getTaskById
 )
 
