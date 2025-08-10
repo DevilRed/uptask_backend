@@ -35,4 +35,21 @@ export class TaskController {
       res.status(500).json({ message: "Error getting task" });
     }
   };
+
+  static getTaskById = async (req: Request, res: Response) => {
+    try {
+      const task = await Task.findById(req.params.id)
+      if (!task) {
+        const error = new Error('Task not found')
+        res.status(404).json({ message: error.message })
+      }
+      if (task && task.project.toString() !== req.params.projectId) {
+        return res.status(400).json({ error: 'Task does not belong to project' })
+      }
+      return res.json(task)
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error getting task" });
+    }
+  };
 }
