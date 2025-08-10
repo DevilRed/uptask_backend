@@ -58,4 +58,12 @@ router.get('/:projectId/tasks/:id',
   TaskController.getTaskById
 )
 
+router.put('/:projectId/tasks/:id',
+  param("id").isMongoId().withMessage("Invalid task ID"),
+  body("name").notEmpty().withMessage("Task name is required"),
+  body("description").notEmpty().withMessage("Task description is required"),
+  handleInputErrors,
+  TaskController.updateTask
+)
+
 export default router;
