@@ -93,4 +93,26 @@ describe('ProjectController', () => {
 		// Verify save was called
 		expect(mockInstance.save).toHaveBeenCalled()
 	})
+
+	it('GET /api/projects/:id should return a project', async () => {
+		// Mock project findById
+		const mockProject = {
+			// use a valid object id format to pass route validation
+			_id: '507f1f77bcf86cd799439011',
+			projectName: 'Test project',
+			clientName: 'Thulio',
+			description: 'lalala'
+		}
+
+		// Mock findById to return an object with populate method
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		vi.mocked((Project as any).findById).mockReturnValue({
+			populate: vi.fn().mockResolvedValue(mockProject)
+		});
+
+		const res = await request(app).get('/api/projects/507f1f77bcf86cd799439011');
+
+		expect(res.status).toBe(200);
+		expect(res.body).toEqual(mockProject);
+	})
 });
