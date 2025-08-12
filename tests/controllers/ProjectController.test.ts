@@ -16,6 +16,8 @@ vi.mock('../../src/models/Project', () => {
 	(MockProject as any).find = vi.fn();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(MockProject as any).findById = vi.fn();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(MockProject as any).findByIdAndUpdate = vi.fn();
 
 	return {
 		default: MockProject
@@ -114,5 +116,26 @@ describe('ProjectController', () => {
 
 		expect(res.status).toBe(200);
 		expect(res.body).toEqual(mockProject);
+	})
+	it('PUT /api/projects/:id should update the project', async () => {
+		const updateData = {
+			projectName: 'Updated project',
+			clientName: 'Updated client',
+			description: 'Updated description'
+		}
+		// Create a mock document with save method since that's used on controller updateProject method
+		const mockProject = {
+			_id: '507f1f77bcf86cd799439011',
+			...updateData,
+			save: vi.fn().mockResolvedValue(true) // Mock save method
+		}
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		vi.mocked((Project as any).findByIdAndUpdate).mockResolvedValue(mockProject)
+
+		const res = await request(app).put('/api/projects/507f1f77bcf86cd799439011').send(updateData)
+
+		expect(res.status).toBe(200)
+		expect(res.body).toEqual('Project updated successfully')
+		expect(mockProject.save).toHaveBeenCalled()
 	})
 });
