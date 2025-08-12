@@ -4,7 +4,7 @@ import app from '../../src/server'
 import { connectDB, closeDB } from "../../src/config/db";
 import Project from '../../src/models/Project';
 
-// Mock the Project model
+// Mock the module Project model, to simulate real document
 vi.mock('../../src/models/Project', () => {
 	const MockProject = vi.fn().mockImplementation(() => ({
 		save: vi.fn()
@@ -137,5 +137,22 @@ describe('ProjectController', () => {
 		expect(res.status).toBe(200)
 		expect(res.body).toEqual('Project updated successfully')
 		expect(mockProject.save).toHaveBeenCalled()
+	})
+
+	it('DELETE /api/projects/:id should delete a project', async () => {
+		// 1. Create the mock project
+		const mockProject = {
+			_id: '507f1f77bcf86cd799439011',
+			deleteOne: vi.fn().mockResolvedValue(true),
+		}
+		// 2. Properly mock Project.findById
+		vi.mocked(Project.findById).mockResolvedValue(mockProject)
+
+		// 3. Make the request
+		const res = await request(app).delete('/api/projects/507f1f77bcf86cd799439011')
+
+		// 4. Assertions
+		expect(res.status).toBe(200)
+		expect(res.body).toBe('Project deleted')
 	})
 });
