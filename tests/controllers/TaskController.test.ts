@@ -38,7 +38,7 @@ describe('TaskController', () => {
 
 		const res = await request(app).get(`/api/projects/${project!._id}/tasks`)
 
-		console.log(res);
+		// console.log(res);
 		expect(res.status).toBe(200);
 		expect(res.body[0].name).toBe('Task testing')
 	})
@@ -58,5 +58,15 @@ describe('TaskController', () => {
 		expect(res.status).toBe(201)
 		expect(res.body).toHaveProperty('_id');
 		expect(res.body.name).toBe('Task created');
+	})
+
+	it('GET /api/projects/:projectId/tasks/:id return specific task', async () => {
+		const project = await Project.findOne()
+		const task = await Task.findOne()
+		if (!task) throw new Error("Test project not found");
+
+		const res = await request(app).get(`/api/projects/${project!._id}/tasks/${task._id}`)
+		expect(res.status).toBe(200)
+		expect(res.body.name).toEqual('Task testing')
 	})
 })
