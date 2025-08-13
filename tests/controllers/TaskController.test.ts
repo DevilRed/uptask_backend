@@ -69,4 +69,19 @@ describe('TaskController', () => {
 		expect(res.status).toBe(200)
 		expect(res.body.name).toEqual('Task testing')
 	})
+
+	it('PUT /:projectId/tasks/:id updates the task', async () => {
+		const project = await Project.findOne()
+		const task = await Task.findOne()
+		const payload = { name: 'Task updated', description: 'description updated' }
+
+		const res = await request(app)
+			.put(`/api/projects/${project!._id}/tasks/${task!._id}`)
+			.send(payload)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json')
+
+		console.log(res.text);
+		expect(res.text).toEqual("Task updated succesfully")
+	})
 })
