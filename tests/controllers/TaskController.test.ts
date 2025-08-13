@@ -42,4 +42,21 @@ describe('TaskController', () => {
 		expect(res.status).toBe(200);
 		expect(res.body[0].name).toBe('Task testing')
 	})
+
+	it('POST /api/projects/:projectId/tasks should add task and update project', async () => {
+		const project = await Project.findOne()
+		if (!project) throw new Error("Test project not found");
+
+		const payload = { name: 'Task created', description: 'description' }
+
+		const res = await request(app)
+			.post(`/api/projects/${project!._id}/tasks`)
+			.send(payload)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json')
+
+		expect(res.status).toBe(201)
+		expect(res.body).toHaveProperty('_id');
+		expect(res.body.name).toBe('Task created');
+	})
 })
