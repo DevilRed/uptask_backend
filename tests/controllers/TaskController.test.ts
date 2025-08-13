@@ -81,7 +81,15 @@ describe('TaskController', () => {
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json')
 
-		console.log(res.text);
 		expect(res.text).toEqual("Task updated succesfully")
+	})
+
+	it('DELETE /:projectId/tasks/:id with valid id deletes the task', async () => {
+		const project = await Project.findOne()
+		const task = await Task.findOne()
+
+		const res = await request(app).delete(`/api/projects/${project!._id}/tasks/${task!._id}`)
+
+		expect(res.text).toEqual("Task deleted succesfully")
 	})
 })
