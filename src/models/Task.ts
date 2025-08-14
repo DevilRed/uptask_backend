@@ -18,6 +18,10 @@ export interface ITask extends Document {
   status: TasksStatus
 }
 
+export const isValidTaskStatus = (value: string): value is TasksStatus => {
+  return Object.values(taskStatus).includes(value as TasksStatus);
+}
+
 export const TaskSchema = new Schema<ITask>(
   {
     name: { type: String, required: true },

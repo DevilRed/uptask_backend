@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
-import Task from "../models/Task";
+import Task, { isValidTaskStatus } from "../models/Task";
 
 export class TaskController {
   static addTask = async (req: Request, res: Response) => {
@@ -89,6 +89,27 @@ export class TaskController {
         await Promise.allSettled([task.deleteOne(), req.project.save()])
       }
       return res.send('Task deleted succesfully')
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error updating task" });
+    }
+  };
+  static updateStatus = async (req: Request, res: Response) => {
+    try {
+      const task = await Task.findById(req.params.id)
+      if (!task) {
+        const error = new Error('Task not found')
+        return res.status(404).json({ message: error.message })
+      }
+      if (task) {
+        const { status } = req.body
+        if (!isValidTaskStatus(status)) {
+          return res.status(400).send("Invalid task status");
+        }
+        task.status = status
+        await task.save()
+        return res.status(200).send('Task status updated')
+      }
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Error updating task" });
