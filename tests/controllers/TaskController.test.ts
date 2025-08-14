@@ -101,4 +101,18 @@ describe('TaskController', () => {
 		const updatedProject = await Project.findById(project!._id);
 		expect(updatedProject?.tasks).not.toContainEqual(task!._id);
 	})
+
+	it('POST /:projectId/tasks/:id/status should update task status', async () => {
+		const project = await Project.findOne()
+		const task = await Task.findOne()
+		const payload = { status: 'inProgress' }
+
+		const res = await request(app)
+			.post(`/api/projects/${project!._id}/tasks/${task!._id}/status`)
+			.send(payload)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json')
+
+		expect(res.text).toEqual("Task status updated")
+	})
 })
