@@ -90,6 +90,15 @@ describe('TaskController', () => {
 
 		const res = await request(app).delete(`/api/projects/${project!._id}/tasks/${task!._id}`)
 
+		expect(res.status).toBe(200);
 		expect(res.text).toEqual("Task deleted succesfully")
+
+		// 5. Verify database state
+		const deletedTask = await Task.findById(task!._id);
+		expect(deletedTask).toBeNull();
+
+		// 6. Verify task was removed from project's tasks array
+		const updatedProject = await Project.findById(project!._id);
+		expect(updatedProject?.tasks).not.toContainEqual(task!._id);
 	})
 })
