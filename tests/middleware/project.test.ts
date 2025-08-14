@@ -78,4 +78,15 @@ describe('validateProjectExists middleware', () => {
 		expect(mockResponse.status).toHaveBeenCalledWith(400)
 		expect(nextFunction).not.toHaveBeenCalled()
 	})
+
+	it('should return 500 for database errors', async () => {
+		vi.mocked(Project.findById).mockRejectedValue(new Error('DB Error'))
+
+		await validateProjectExists(
+			mockRequest as Request,
+			mockResponse as Response,
+			nextFunction
+		)
+		expect(mockResponse.status).toHaveBeenCalledWith(500)
+	})
 })
