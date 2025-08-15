@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Request, Response, NextFunction } from "express";
 import Project from "../../src/models/Project";
-import { validateProjectExists } from "../../src/middleware/project";
+import { projectExists } from "../../src/middleware/project";
 import { Types } from "mongoose";
 
 vi.mock('../../src/models/Project')
 
-describe('validateProjectExists middleware', () => {
+describe('projectExists middleware', () => {
 	let mockRequest: Partial<Request>
 	let mockResponse: Partial<Response>
 	let nextFunction: NextFunction
@@ -32,7 +32,7 @@ describe('validateProjectExists middleware', () => {
 		vi.mocked(Project.findById).mockResolvedValue(mockProject)
 
 		// act
-		await validateProjectExists(
+		await projectExists(
 			mockRequest as Request,
 			mockResponse as Response,
 			nextFunction
@@ -49,7 +49,7 @@ describe('validateProjectExists middleware', () => {
 		vi.mocked(Project.findById).mockResolvedValue(null)
 
 		// act
-		await validateProjectExists(
+		await projectExists(
 			mockRequest as Request,
 			mockResponse as Response,
 			nextFunction
@@ -68,7 +68,7 @@ describe('validateProjectExists middleware', () => {
 		mockRequest.params = { projectId: 'invalid-id' }
 
 		// act
-		await validateProjectExists(
+		await projectExists(
 			mockRequest as Request,
 			mockResponse as Response,
 			nextFunction
@@ -82,7 +82,7 @@ describe('validateProjectExists middleware', () => {
 	it('should return 500 for database errors', async () => {
 		vi.mocked(Project.findById).mockRejectedValue(new Error('DB Error'))
 
-		await validateProjectExists(
+		await projectExists(
 			mockRequest as Request,
 			mockResponse as Response,
 			nextFunction
