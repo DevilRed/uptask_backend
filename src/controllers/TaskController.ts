@@ -38,7 +38,7 @@ export class TaskController {
 
   static getTaskById = async (req: Request, res: Response) => {
     try {
-      const task = await Task.findById(req.params.id)
+      const task = await Task.findById(req.params.taskId)
       if (!task) {
         const error = new Error('Task not found')
         res.status(404).json({ message: error.message })
@@ -46,7 +46,7 @@ export class TaskController {
       if (task && task.project.toString() !== req.params.projectId) {
         return res.status(400).json({ error: 'Task does not belong to project' })
       }
-      return res.json(task)
+      return res.json(req.task)
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Error getting task" });
@@ -55,18 +55,13 @@ export class TaskController {
 
   static updateTask = async (req: Request, res: Response) => {
     try {
-      const task = await Task.findById(req.params.id)
-      if (!task) {
-        const error = new Error('Task not found')
-        res.status(404).json({ message: error.message })
-      }
-      if (task && task.project.toString() !== req.params.projectId) {
+      if (req.task && req.task.project.toString() !== req.params.projectId) {
         return res.status(400).json({ error: 'Task does not belong to project' })
       }
-      if (task) {
-        task.name = req.body.name
-        task.description = req.body.description
-        await task.save()
+      if (req.task) {
+        req.task.name = req.body.name
+        req.task.description = req.body.description
+        await req.task.save()
       }
       return res.send('Task updated succesfully')
     } catch (error) {
@@ -76,17 +71,12 @@ export class TaskController {
   };
   static deleteTask = async (req: Request, res: Response) => {
     try {
-      const task = await Task.findById(req.params.id, req.body)
-      if (!task) {
-        const error = new Error('Task not found')
-        res.status(404).json({ message: error.message })
-      }
-      if (task) {
+      if (req.task) {
         // await task.deleteOne()
         // delete task from project document
-        req.project.tasks = req.project.tasks.filter(taskId => taskId?.toString() !== req.params.id)
+        req.project.tasks = req.project.tasks.filter(taskId => taskId?.toString() !== req.params.taskId)
         // await req.project.save()
-        await Promise.allSettled([task.deleteOne(), req.project.save()])
+        await Promise.allSettled([req.task.deleteOne(), req.project.save()])
       }
       return res.send('Task deleted succesfully')
     } catch (error) {
@@ -96,18 +86,13 @@ export class TaskController {
   };
   static updateStatus = async (req: Request, res: Response) => {
     try {
-      const task = await Task.findById(req.params.id)
-      if (!task) {
-        const error = new Error('Task not found')
-        return res.status(404).json({ message: error.message })
-      }
-      if (task) {
+      if (req.task) {
         const { status } = req.body
         if (!isValidTaskStatus(status)) {
           return res.status(400).send("Invalid task status");
         }
-        task.status = status
-        await task.save()
+        req.task.status = status
+        await req.task.save()
         return res.status(200).send('Task status updated')
       }
     } catch (error) {
