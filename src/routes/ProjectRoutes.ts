@@ -4,6 +4,7 @@ import { body, param } from "express-validator";
 import { handleInputErrors } from "../middleware/validation";
 import { TaskController } from "../controllers/TaskController";
 import { projectExists } from "../middleware/project";
+import { taskExists } from "../middleware/task";
 
 const router = Router();
 
@@ -51,29 +52,29 @@ router.post('/:projectId/tasks',
 router.get('/:projectId/tasks',
   TaskController.getProjectTasks
 )
-
-router.get('/:projectId/tasks/:id',
-  param("id").isMongoId().withMessage("Invalid task ID"),
+router.param('taskId', taskExists)
+router.get('/:projectId/tasks/:taskId',
+  param("taskId").isMongoId().withMessage("Invalid task ID"),
   handleInputErrors,
   TaskController.getTaskById
 )
 
-router.put('/:projectId/tasks/:id',
-  param("id").isMongoId().withMessage("Invalid task ID"),
+router.put('/:projectId/tasks/:taskId',
+  param("taskId").isMongoId().withMessage("Invalid task ID"),
   body("name").notEmpty().withMessage("Task name is required"),
   body("description").notEmpty().withMessage("Task description is required"),
   handleInputErrors,
   TaskController.updateTask
 )
 
-router.delete('/:projectId/tasks/:id',
-  param("id").isMongoId().withMessage("Invalid task ID"),
+router.delete('/:projectId/tasks/:taskId',
+  param("taskId").isMongoId().withMessage("Invalid task ID"),
   handleInputErrors,
   TaskController.deleteTask
 )
 
-router.post('/:projectId/tasks/:id/status',
-  param("id").isMongoId().withMessage("Invalid task ID"),
+router.post('/:projectId/tasks/:taskId/status',
+  param("taskId").isMongoId().withMessage("Invalid task ID"),
   body("status").notEmpty().withMessage("Status is required"),
   handleInputErrors,
   TaskController.updateStatus
