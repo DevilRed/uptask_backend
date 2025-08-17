@@ -43,9 +43,7 @@ export class TaskController {
         const error = new Error('Task not found')
         res.status(404).json({ message: error.message })
       }
-      if (task && task.project.toString() !== req.params.projectId) {
-        return res.status(400).json({ error: 'Task does not belong to project' })
-      }
+
       return res.json(req.task)
     } catch (error) {
       console.log(error);
@@ -55,9 +53,7 @@ export class TaskController {
 
   static updateTask = async (req: Request, res: Response) => {
     try {
-      if (req.task && req.task.project.toString() !== req.params.projectId) {
-        return res.status(400).json({ error: 'Task does not belong to project' })
-      }
+
       if (req.task) {
         req.task.name = req.body.name
         req.task.description = req.body.description

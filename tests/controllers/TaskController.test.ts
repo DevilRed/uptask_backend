@@ -38,7 +38,6 @@ describe('TaskController', () => {
 
 		const res = await request(app).get(`/api/projects/${project!._id}/tasks`)
 
-		// console.log(res);
 		expect(res.status).toBe(200);
 		expect(res.body[0].name).toBe('Task testing')
 	})
