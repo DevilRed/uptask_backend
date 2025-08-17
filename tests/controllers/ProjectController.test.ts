@@ -130,7 +130,7 @@ describe('ProjectController', () => {
 			save: vi.fn().mockResolvedValue(true) // Mock save method
 		}
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		vi.mocked((Project as any).findByIdAndUpdate).mockResolvedValue(mockProject)
+		vi.mocked((Project as any).findById).mockResolvedValue(mockProject)
 
 		const res = await request(app).put('/api/projects/507f1f77bcf86cd799439011').send(updateData)
 
