@@ -27,3 +27,10 @@ export async function taskExists(req: Request, res: Response, next: NextFunction
 		res.status(500).json({ error: 'There has been an error' })
 	}
 }
+
+export function taskBelongsToProject(req: Request, res: Response, next: NextFunction) {
+	if (req.task.project.toString() !== req.params.projectId.toString()) {
+		return res.status(400).json({ error: 'Task does not belong to project' })
+	}
+	next()
+}
