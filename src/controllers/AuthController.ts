@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { transporter } from "../config/nodemailer";
+import { AuthEmail } from "../emails/AuthEmail";
 import Token from "../models/Token";
 import User from "../models/User";
 import { hashPassword } from "../utils/auth";
@@ -24,12 +24,10 @@ export class AuthController {
 			token.user = user.id
 
 			// email send
-			await transporter.sendMail({
-				from: 'UpTask <admin@uptask.com>',
-				to: user.email,
-				subject: 'UpTask - account confirmation',
-				text: 'UpTask - account confirmation',
-				html: '<p>email testing</p>'
+			AuthEmail.sendConfirmationEmail({
+				email: user.email,
+				name: user.name,
+				token: token.token
 			})
 
 			// await user.save();
