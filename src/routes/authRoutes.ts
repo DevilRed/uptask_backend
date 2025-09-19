@@ -27,4 +27,13 @@ router.post('/confirm-account',
 	AuthController.confirmAccount
 )
 
+router.post('/login',
+	body('email')
+		.notEmpty().withMessage('Token is required'),
+	body("password")
+		.notEmpty().withMessage("Password is required"),
+	handleInputErrors,
+	AuthController.login
+)
+
 export default router;
