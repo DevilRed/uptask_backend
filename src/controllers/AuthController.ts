@@ -48,6 +48,14 @@ export class AuthController {
 				const error = new Error('Invalid token')
 				return res.status(401).json({ error: error.message })
 			}
+			// get user from token update his confirmed field
+			const user = await User.findById(tokenExists.user)
+			user!.confirmed = true
+			await Promise.allSettled([
+				user!.save(),
+				tokenExists.deleteOne()
+			])
+			return res.send('Account confirmed successfully')
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ error: 'There was an error' })
