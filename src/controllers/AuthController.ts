@@ -35,8 +35,9 @@ export class AuthController {
 			await Promise.allSettled([user.save(), token.save()])
 
 			res.status(201).send('Account created successfully, check your email to confirm your account');
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
-			res.status(500).json({ error: error.message })
+			res.status(500).json({ error: 'some error' })
 		}
 	}
 
@@ -95,6 +96,43 @@ export class AuthController {
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ error: 'There was an error' })
+		}
+	}
+
+	static requestConfirmationCode = async (req: Request, res: Response) => {
+		try {
+			const { email } = req.body;
+			// user exists
+			const user = await User.findOne({ email });
+			if (!user) {
+				return res.status(404).json({ error: 'User not found' });
+			}
+
+			if (user.confirmed) {
+				const error = new Error('The user is already confirmed')
+				return res.status(409).json({ error: error.message })
+			}
+
+			// generate token
+			const token = new Token()
+			token.token = generateToken()
+			token.user = user.id
+
+			// email send
+			AuthEmail.sendConfirmationEmail({
+				email: user.email,
+				name: user.name,
+				token: token.token
+			})
+
+			// await user.save();
+			// await token.save()
+			await Promise.allSettled([user.save(), token.save()])
+
+			res.status(201).send('A new token has been sent, check your email to confirm your account');
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch (error) {
+			res.status(500).json({ error: 'There was an error.' })
 		}
 	}
 }

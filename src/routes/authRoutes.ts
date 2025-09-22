@@ -29,11 +29,18 @@ router.post('/confirm-account',
 
 router.post('/login',
 	body('email')
-		.notEmpty().withMessage('Token is required'),
+		.notEmpty().withMessage('Email is required'),
 	body("password")
 		.notEmpty().withMessage("Password is required"),
 	handleInputErrors,
 	AuthController.login
+)
+
+router.post('/request-code',
+	body('email')
+		.notEmpty().withMessage('Email is required'),
+	handleInputErrors,
+	AuthController.requestConfirmationCode
 )
 
 export default router;
