@@ -135,4 +135,33 @@ export class AuthController {
 			res.status(500).json({ error: 'There was an error.' })
 		}
 	}
+
+	static forgotPassword = async (req: Request, res: Response) => {
+		try {
+			const { email } = req.body;
+			// user exists
+			const user = await User.findOne({ email });
+			if (!user) {
+				return res.status(404).json({ error: 'User not found' });
+			}
+
+			// generate token
+			const token = new Token()
+			token.token = generateToken()
+			token.user = user.id
+			await token.save()
+
+			// email send
+			AuthEmail.sendPasswordResetToken({
+				email: user.email,
+				name: user.name,
+				token: token.token
+			})
+
+			res.status(201).send('Check your email for instructions');
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch (error) {
+			res.status(500).json({ error: 'There was an error.' })
+		}
+	}
 }
