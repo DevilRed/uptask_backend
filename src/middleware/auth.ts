@@ -1,6 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import User, { IUser } from "../models/User";
+
+// extend Request from express to add custom properties
+declare module 'express' {
+	interface Request {
+		user?: IUser
+	}
+}
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
 	// get token from headers
@@ -14,10 +21,15 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload
-		const user = await User.findById(decoded.id)
-		console.log(user);
-	} catch (error) {
-		console.log(error);
+		// select required data only
+		const user = await User.findById(decoded.id).select('_id')
+		if (user) {
+			// add user to request
+			req.user = user
+		} else {
+			res.status(500).json({ error: 'Invalid token' })
+		}
+	} catch {
 		res.status(500).json({ error: 'Invalid token' })
 	}
 	next()
