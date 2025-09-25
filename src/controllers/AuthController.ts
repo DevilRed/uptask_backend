@@ -3,6 +3,7 @@ import { AuthEmail } from "../emails/AuthEmail";
 import Token from "../models/Token";
 import User from "../models/User";
 import { checkPassword, hashPassword } from "../utils/auth";
+import { generateJWT } from "../utils/jwt";
 import { generateToken } from "../utils/token";
 
 export class AuthController {
@@ -92,7 +93,8 @@ export class AuthController {
 			if (!isPasswordCorrect) {
 				res.status(401).json({ error: 'Incorrect Password' })
 			}
-			return res.status(200).send('Authenticated');
+			const token = generateJWT({ id: user.id })
+			return res.status(200).send(token);
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ error: 'There was an error' })
