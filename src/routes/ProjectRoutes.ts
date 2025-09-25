@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { ProjectController } from "../controllers/ProjectController";
 import { body, param } from "express-validator";
-import { handleInputErrors } from "../middleware/validation";
+import { ProjectController } from "../controllers/ProjectController";
 import { TaskController } from "../controllers/TaskController";
+import { authenticate } from "../middleware/auth";
 import { projectExists } from "../middleware/project";
 import { taskBelongsToProject, taskExists } from "../middleware/task";
+import { handleInputErrors } from "../middleware/validation";
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.get(
 );
 router.post(
   "/",
+  authenticate,
   body("projectName").notEmpty().withMessage("Project name is required"),
   body("clientName").notEmpty().withMessage("Client name is required"),
   body("description").notEmpty().withMessage("Description is required"),
