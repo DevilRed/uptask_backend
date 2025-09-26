@@ -14,6 +14,8 @@ export class ProjectController {
   static addProject = async (req: Request, res: Response) => {
     try {
       const project = new Project(req.body);
+      if (req.user)
+        project.manager = req.user.id
       await project.save();
       res.status(201).json(project);
     } catch (error) {

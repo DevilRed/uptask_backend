@@ -1,5 +1,6 @@
-import { model, Schema, Document, PopulatedDoc } from "mongoose";
+import { Document, model, PopulatedDoc, Schema } from "mongoose";
 import { ITask } from "./Task";
+import { IUser } from "./User";
 
 export interface IProject extends Document {
   projectName: string;
@@ -7,6 +8,7 @@ export interface IProject extends Document {
   description: string;
   // project has many tasks
   tasks: PopulatedDoc<ITask & Document>[];
+  manager: PopulatedDoc<IUser & Document>
 }
 
 const ProjectSchema = new Schema<IProject>(
@@ -20,6 +22,11 @@ const ProjectSchema = new Schema<IProject>(
         ref: "Task",
       },
     ],
+    // save user id
+    manager: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    }
   },
   { timestamps: true },
 );
