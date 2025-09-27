@@ -9,6 +9,7 @@ import { handleInputErrors } from "../middleware/validation";
 
 const router = Router();
 
+router.use(authenticate)// set middleware globally for this module
 // route params
 // params for project
 router.param('projectId', projectExists)
@@ -16,7 +17,7 @@ router.param('projectId', projectExists)
 router.param('taskId', taskExists)
 router.param('taskId', taskBelongsToProject)
 
-router.get("/", authenticate, ProjectController.getAllProjects);
+router.get("/", ProjectController.getAllProjects);
 router.get(
   "/:id",
   param("id").isMongoId().withMessage("Invalid project ID"),
@@ -25,7 +26,6 @@ router.get(
 );
 router.post(
   "/",
-  authenticate,
   body("projectName").notEmpty().withMessage("Project name is required"),
   body("clientName").notEmpty().withMessage("Client name is required"),
   body("description").notEmpty().withMessage("Description is required"),
