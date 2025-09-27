@@ -16,7 +16,7 @@ router.param('projectId', projectExists)
 router.param('taskId', taskExists)
 router.param('taskId', taskBelongsToProject)
 
-router.get("/", ProjectController.getAllProjects);
+router.get("/", authenticate, ProjectController.getAllProjects);
 router.get(
   "/:id",
   param("id").isMongoId().withMessage("Invalid project ID"),
