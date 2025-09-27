@@ -31,12 +31,15 @@ export class ProjectController {
   static getProjectById = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log('Fetching project with ID:', id);
 
       const project = await Project.findById(id).populate('tasks');
       if (!project) {
         const error = new Error("Project not found");
         return res.status(404).json({ error: error.message });
+      }
+      if (project.manager?.toString() !== req.user?.id.toString()) {
+        const error = new Error('Invalid user action')
+        return res.status(404).json({ error: error.message })
       }
       res.status(200).json(project);
     } catch (error) {
