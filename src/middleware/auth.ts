@@ -22,7 +22,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload
 		// select required data only
-		const user = await User.findById(decoded.id).select('_id')
+		const user = await User.findById(decoded.id).select('_id name email')
+
 		if (user) {
 			// add user to request
 			req.user = user
