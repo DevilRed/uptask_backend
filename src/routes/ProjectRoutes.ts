@@ -2,6 +2,7 @@ import { Router } from "express";
 import { body, param } from "express-validator";
 import { ProjectController } from "../controllers/ProjectController";
 import { TaskController } from "../controllers/TaskController";
+import { TeamMemberController } from "../controllers/TeamMemberController";
 import { authenticate } from "../middleware/auth";
 import { projectExists } from "../middleware/project";
 import { taskBelongsToProject, taskExists } from "../middleware/task";
@@ -86,6 +87,13 @@ router.post('/:projectId/tasks/:taskId/status',
   body("status").notEmpty().withMessage("Status is required"),
   handleInputErrors,
   TaskController.updateStatus
+)
+
+router.post('/:projectId/team/find',
+  body("email")
+    .isEmail().toLowerCase().withMessage("Invalid email"),
+  handleInputErrors,
+  TeamMemberController.findMemberByEmail
 )
 
 export default router;
