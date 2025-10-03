@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import User from "../models/User";
+import Project from "../models/Project";
 
 export class TeamMemberController {
 	static findMemberByEmail = async (req: Request, res: Response) => {
@@ -37,5 +38,13 @@ export class TeamMemberController {
 		req.project.team = req.project.team.filter(memberId => memberId?.toString() !== id)
 		await req.project.save()
 		return res.status(200).send('Member removed from project')
+	}
+
+	static getProjectTeam = async (req: Request, res: Response) => {
+		const project = await Project.findById(req.project.id).populate({
+			path: 'team',
+			select: 'id name email'
+		})
+		return res.status(200).json(project?.team)
 	}
 }

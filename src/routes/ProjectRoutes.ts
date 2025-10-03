@@ -96,6 +96,13 @@ router.post('/:projectId/team/find',
   TeamMemberController.findMemberByEmail
 )
 
+router.get('/:projectId/team',
+  /* body("id")
+    .isMongoId().withMessage("Invalid project ID"),
+  handleInputErrors, */
+  TeamMemberController.getProjectTeam
+)
+
 router.post('/:projectId/team',
   body("id")
     .isMongoId().withMessage("Invalid user ID"),
