@@ -2,9 +2,22 @@ import { NextFunction, Request, Response } from "express";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+// Set environment variables for testing
+process.env.NODE_ENV = 'development';
+process.env.FRONTEND_URL = 'http://localhost:3000';
+
 // mock auth middleware before app is imported
 vi.mock('../../src/middleware/auth', () => ({
-	authenticate: (req: Request, res: Response, next: NextFunction) => next()
+	authenticate: (req: Request, res: Response, next: NextFunction) => {
+		// Mock user data for testing
+		req.user = {
+			_id: '507f1f77bcf86cd799439011',
+			id: '507f1f77bcf86cd799439011', // Add id property for controller access
+			name: 'Test User',
+			email: 'test@example.com'
+		} as Request['user'];
+		next();
+	}
 }));
 
 import { closeDB, connectDB } from "../../src/config/db";
