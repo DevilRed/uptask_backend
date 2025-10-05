@@ -1,9 +1,16 @@
-import { describe, it, expect, afterAll, beforeAll } from "vitest";
+import { NextFunction, Request, Response } from "express";
 import request from "supertest";
-import app from "../../src/server";
-import { connectDB, closeDB } from "../../src/config/db";
-import Task from "../../src/models/Task";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
+// mock auth middleware before app is imported
+vi.mock('../../src/middleware/auth', () => ({
+	authenticate: (req: Request, res: Response, next: NextFunction) => next()
+}));
+
+import { closeDB, connectDB } from "../../src/config/db";
 import Project from '../../src/models/Project';
+import Task from "../../src/models/Task";
+import app from "../../src/server";
 
 describe('TaskController', () => {
 	beforeAll(async () => {
