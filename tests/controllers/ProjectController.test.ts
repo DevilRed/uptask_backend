@@ -8,13 +8,15 @@ import Project, { IProject } from '../../src/models/Project';
 process.env.NODE_ENV = 'development';
 process.env.FRONTEND_URL = 'http://localhost:3000';
 
+const mockedUserId = '507f1f77bcf86cd799439011'
+
 // mock auth middleware before app is imported
 vi.mock('../../src/middleware/auth', () => ({
 	authenticate: (req: Request, res: Response, next: NextFunction) => {
 		// Mock user data for testing
 		req.user = {
-			_id: '507f1f77bcf86cd799439011',
-			id: '507f1f77bcf86cd799439011', // Add id property for controller access
+			_id: mockedUserId,
+			id: mockedUserId, // Add id property for controller access
 			name: 'Test User',
 			email: 'test@example.com'
 		} as Request['user'];
@@ -90,8 +92,8 @@ describe('ProjectController', () => {
 		// The controller uses a query structure that checks both manager and team
 		expect(Project.find).toHaveBeenCalledWith({
 			$or: [
-				{ manager: { $in: '507f1f77bcf86cd799439011' } },
-				{ team: { $in: '507f1f77bcf86cd799439011' }}
+				{ manager: { $in: mockedUserId } },
+				{ team: { $in: mockedUserId }}
 			]
 		});
 	})
@@ -114,7 +116,7 @@ describe('ProjectController', () => {
 		const mockSavedProject = {
 			_id: '123',
 			...newProject,
-			manager: '507f1f77bcf86cd799439011' // The controller adds this
+			manager: mockedUserId // The controller adds this
 		}
 
 		// Create a mock instance with save method that returns the instance itself
@@ -142,8 +144,8 @@ describe('ProjectController', () => {
 		// Mock project findById
 		const mockProject = {
 			// use a valid object id format to pass route validation
-			_id: '507f1f77bcf86cd799439011',
-			manager: '507f1f77bcf86cd799439011', // Same as the mocked user ID
+			_id: mockedUserId,
+			manager: mockedUserId, // Same as the mocked user ID
 			projectName: 'Test project',
 			clientName: 'Thulio',
 			description: 'lalala'
@@ -168,8 +170,8 @@ describe('ProjectController', () => {
 		}
 		// Create a mock document with save method since that's used on controller updateProject method
 		const mockProject = {
-			_id: '507f1f77bcf86cd799439011',
-			manager: '507f1f77bcf86cd799439011', // Same as the mocked user ID
+			_id: mockedUserId,
+			manager: mockedUserId, // Same as the mocked user ID
 			...updateData,
 			save: vi.fn().mockResolvedValue(true) // Mock save method
 		}
@@ -186,8 +188,8 @@ describe('ProjectController', () => {
 	it('DELETE /api/projects/:id should delete a project', async () => {
 		// 1. Create the mock project
 		const mockProject = {
-			_id: '507f1f77bcf86cd799439011',
-			manager: '507f1f77bcf86cd799439011', // Same as the mocked user ID
+			_id: mockedUserId,
+			manager: mockedUserId, // Same as the mocked user ID
 			deleteOne: vi.fn().mockResolvedValue(true),
 		}
 		// 2. Properly mock Project.findById
@@ -205,12 +207,12 @@ describe('ProjectController', () => {
 	it('GET /api/projects should return projects where user is in team', async () => {
 		const mockProjects = [
 			{
-				_id: '507f1f77bcf86cd799439011',
+				_id: mockedUserId,
 				projectName: 'Team Project',
 				clientName: 'Client',
 				description: 'Description',
 				manager: '507f1f77bcf86cd799439012', // different manager
-				team: ['507f1f77bcf86cd799439011'] // mocked user is in team
+				team: [mockedUserId] // mocked user is in team
 			}
 		];
 
@@ -222,8 +224,8 @@ describe('ProjectController', () => {
 		expect(res.body).toEqual(mockProjects);
 		expect(Project.find).toHaveBeenCalledWith({
 			$or: [
-				{ manager: { $in: '507f1f77bcf86cd799439011' } },
-				{ team: { $in: '507f1f77bcf86cd799439011' }}
+				{ manager: { $in: mockedUserId } },
+				{ team: { $in: mockedUserId }}
 			]
 		});
 	})
@@ -239,8 +241,8 @@ describe('ProjectController', () => {
 		expect(res.body).toEqual([]);
 		expect(Project.find).toHaveBeenCalledWith({
 			$or: [
-				{ manager: { $in: '507f1f77bcf86cd799439011' } },
-				{ team: { $in: '507f1f77bcf86cd799439011' }}
+				{ manager: { $in: mockedUserId } },
+				{ team: { $in: mockedUserId }}
 			]
 		});
 	})
@@ -248,12 +250,12 @@ describe('ProjectController', () => {
 	// Test team membership scenarios for getProjectById
 	it('GET /api/projects/:id should return project when user is in team', async () => {
 		const mockProject = {
-			_id: '507f1f77bcf86cd799439011',
+			_id: mockedUserId,
 			projectName: 'Team Project',
 			clientName: 'Client',
 			description: 'Description',
 			manager: '507f1f77bcf86cd799439012', // Different manager
-			team: ['507f1f77bcf86cd799439011'], // User is in team
+			team: [mockedUserId], // User is in team
 			tasks: []
 		};
 
@@ -269,7 +271,7 @@ describe('ProjectController', () => {
 
 	it('GET /api/projects/:id should return 404 when user is neither manager nor in team', async () => {
 		const mockProject = {
-			_id: '507f1f77bcf86cd799439011',
+			_id: mockedUserId,
 			projectName: 'Private Project',
 			clientName: 'Client',
 			description: 'Description',
