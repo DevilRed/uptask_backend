@@ -16,7 +16,7 @@ export interface ITask extends Document {
   description: string;
   project: Types.ObjectId;
   status: TasksStatus
-  completedBy: Types.ObjectId
+  completedBy: Types.ObjectId | null
 }
 
 export const isValidTaskStatus = (value: string): value is TasksStatus => {

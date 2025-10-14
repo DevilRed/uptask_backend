@@ -88,6 +88,11 @@ export class TaskController {
           return res.status(400).send("Invalid task status");
         }
         req.task.status = status
+        if (status === 'pending') {
+          req.task.completedBy = null
+        } else {
+          req.task.completedBy = req.user?.id
+        }
         await req.task.save()
         return res.status(200).send('Task status updated')
       }
