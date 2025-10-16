@@ -39,7 +39,7 @@ export class TaskController {
   static getTaskById = async (req: Request, res: Response) => {
     try {
       const task = await Task.findById(req.params.taskId).populate({
-        path: 'completedBy',
+        path: 'completedBy.user',
         select: 'id name email'
       })
       if (!task) {
@@ -92,10 +92,13 @@ export class TaskController {
           return res.status(400).send("Invalid task status");
         }
         req.task.status = status
-        if (status === 'pending') {
-          req.task.completedBy = null
-        } else {
-          req.task.completedBy = req.user?.id
+
+        // Add to completion history
+        if (req.user?.id) {
+          req.task.completedBy.push({
+            user: req.user.id,
+            status: status
+          })
         }
         await req.task.save()
         return res.status(200).send('Task status updated')
