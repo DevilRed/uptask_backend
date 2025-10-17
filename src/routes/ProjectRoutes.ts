@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { body, param } from "express-validator";
+import { NoteController } from "../controllers/NoteController";
 import { ProjectController } from "../controllers/ProjectController";
 import { TaskController } from "../controllers/TaskController";
 import { TeamMemberController } from "../controllers/TeamMemberController";
@@ -118,6 +119,14 @@ router.delete('/:projectId/team/:userId',
     .isMongoId().withMessage("Invalid user ID"),
   handleInputErrors,
   TeamMemberController.removeMemberById
+)
+
+// note's routes
+router.post('/:projectId/tasks/:taskId/notes',
+  body('content')
+    .notEmpty().withMessage('Content is required'),
+  handleInputErrors,
+  NoteController.createNote
 )
 
 export default router;
