@@ -20,6 +20,7 @@ export interface ITask extends Document {
     user: Types.ObjectId;
     status: TasksStatus;
   }[]
+  notes: Types.ObjectId[]
 }
 
 export const isValidTaskStatus = (value: string): value is TasksStatus => {
@@ -36,6 +37,12 @@ export const TaskSchema = new Schema<ITask>(
       user: { type: Schema.Types.ObjectId, ref: "User", default: null },
       status: { type: String, enum: Object.values(taskStatus), default: taskStatus.PENDING }
     }],
+    notes: [
+      {
+        type: Types.ObjectId,
+        ref: 'Note'
+      }
+    ]
   },
   { timestamps: true },
 );
