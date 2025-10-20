@@ -38,10 +38,18 @@ export class TaskController {
 
   static getTaskById = async (req: Request, res: Response) => {
     try {
-      const task = await Task.findById(req.params.taskId).populate({
+      const task = await Task.findById(req.params.taskId)
+        .populate({
         path: 'completedBy.user',
         select: 'id name email'
       })
+        .populate({
+          path: 'notes',
+          populate: {
+            path: 'createdBy',
+            select: 'id name email'
+          }
+        })
       if (!task) {
         const error = new Error('Task not found')
         res.status(404).json({ message: error.message })

@@ -22,4 +22,14 @@ export class NoteController {
 
 		req.task.notes.push(note.id)
 	}
+
+	static getTaskNotes = async (req: Request, res: Response) => {
+		try {
+			const notes = await Note.find({ task: req.task.id })
+			return res.json(notes)
+		} catch (error) {
+			console.log(error);
+			res.status(500).json({ error: 'There was an error' })
+		}
+	}
 }
