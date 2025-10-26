@@ -209,4 +209,27 @@ export class AuthController {
 	static user = async (req: Request, res: Response) => {
 		return res.json(req.user)
 	}
+
+	static updateProfile = async (req: Request, res: Response) => {
+		const { name, email } = req.body
+		const userExists = await User.findOne({email})
+
+		if (userExists && userExists.id.toString() !== req.user?.id.toString()) {
+			const error = new Error('The email is already taken')
+			return res.status(409).json({error: error.message})
+		}
+
+		// the middleware already has the user there is no need to query the db again
+		if(req.user) {
+			req.user.name = name
+			req.user.email = email
+
+			try {
+				await req.user.save()
+				res.send('Profile updated successfully')
+			} catch (error) {
+				res.status(500).send('There was an error')
+			}
+		}
+	}
 }
