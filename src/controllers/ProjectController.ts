@@ -85,7 +85,7 @@ export class ProjectController {
         return res.status(404).json({ error: error.message })
       }
       await project.deleteOne();
-      res.status(200).json("Invalid action");
+      res.status(200).json("Project deleted successfully");
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Error getting project" });
