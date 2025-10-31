@@ -64,7 +64,7 @@ describe('TaskController', () => {
 		expect(res.body[0].name).toBe('Task testing')
 	})
 
-	it.only('POST /api/projects/:projectId/tasks should add task and update project', async () => {
+	it('POST /api/projects/:projectId/tasks should add task and update project', async () => {
 		const project = await Project.findOne()
 		if (!project) throw new Error("Test project not found");
 
