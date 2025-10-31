@@ -200,7 +200,7 @@ describe('ProjectController', () => {
 
 		// 4. Assertions
 		expect(res.status).toBe(200)
-		expect(res.body).toBe('Invalid action') // The controller actually returns this
+		expect(res.body).toBe('Project deleted successfully')
 	})
 
 	// Test team membership scenarios for getAllProjects
