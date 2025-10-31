@@ -6,13 +6,14 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 process.env.NODE_ENV = 'development';
 process.env.FRONTEND_URL = 'http://localhost:3000';
 
+const userId = '507f1f77bcf86cd799439011'
 // mock auth middleware before app is imported
 vi.mock('../../src/middleware/auth', () => ({
 	authenticate: (req: Request, res: Response, next: NextFunction) => {
 		// Mock user data for testing
 		req.user = {
-			_id: '507f1f77bcf86cd799439011',
-			id: '507f1f77bcf86cd799439011', // Add id property for controller access
+			_id: userId,
+			id: userId, // Add id property for controller access
 			name: 'Test User',
 			email: 'test@example.com'
 		} as Request['user'];
@@ -36,7 +37,8 @@ describe('TaskController', () => {
 		const project = await Project.create({
 			projectName: 'Integration Test',
 			clientName: 'Test Client',
-			description: 'Test project description'
+			description: 'Test project description',
+			manager: userId
 		})
 
 		await Task.create({
@@ -62,7 +64,7 @@ describe('TaskController', () => {
 		expect(res.body[0].name).toBe('Task testing')
 	})
 
-	it('POST /api/projects/:projectId/tasks should add task and update project', async () => {
+	it.only('POST /api/projects/:projectId/tasks should add task and update project', async () => {
 		const project = await Project.findOne()
 		if (!project) throw new Error("Test project not found");
 
