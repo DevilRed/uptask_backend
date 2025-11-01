@@ -1,6 +1,7 @@
 import { Document, model, PopulatedDoc, Schema } from "mongoose";
-import { ITask } from "./Task";
+import Task, { ITask } from "./Task";
 import { IUser } from "./User";
+import Note from "./Note";
 
 export interface IProject extends Document {
   projectName: string;
@@ -37,6 +38,19 @@ const ProjectSchema = new Schema<IProject>(
   },
   { timestamps: true },
 );
+// middleware has to be before the model
+ProjectSchema.pre('deleteOne', {document: true}, async function(next) {
+  const projectId = this._id;
+  if(!projectId) return;
+  // get all tasks associated with the project
+  const tasks = await Task.find({ project: projectId });
+  // delete all notes associated with the task
+  for(const task of tasks) {
+    await Note.deleteMany({task: task.id});
+  }
+  await Task.deleteMany({ project: projectId });
+  next();
+})
 
 const Project = model<IProject>("Project", ProjectSchema);
 

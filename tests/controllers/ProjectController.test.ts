@@ -25,6 +25,8 @@ vi.mock('../../src/middleware/auth', () => ({
 }));
 
 import app from '../../src/server';
+import Task from "../../src/models/Task";
+import Note from "../../src/models/Note";
 
 // Mock the module Project model, to simulate real document
 vi.mock('../../src/models/Project', () => {
@@ -300,4 +302,89 @@ describe('ProjectController', () => {
 		expect(res.status).toBe(404);
 		expect(res.body).toEqual({ error: 'Project not found' });
 	})
+
+	it('DELETE /:projectId should delete the project and all related task and notes', async () => {
+		// Temporarily unmock Project model for this integration test
+		vi.doUnmock('../../src/models/Project');
+		// Re-import to get the real model
+		const ProjectModule = await import('../../src/models/Project');
+		const RealProject = ProjectModule.default;
+
+		// Clean up any existing test data
+		await Task.deleteMany({});
+		await Note.deleteMany({});
+		await RealProject.deleteMany({});
+
+		// 1. Create a new project and task
+		const project = await RealProject.create({
+			projectName: 'Project Deletion Test',
+			clientName: 'Test Client',
+			description: 'Test project for note deletion',
+			manager: mockedUserId
+		})
+
+		const task = await Task.create({
+			name: 'Task with notes',
+			description: 'Task that will be deleted with notes',
+			project: project._id
+		})
+
+		// 2. Create multiple notes associated with the task
+		const note1 = await Note.create({
+			content: 'First note for the task',
+			createdBy: mockedUserId,
+			task: task._id
+		})
+
+		const note2 = await Note.create({
+			content: 'Second note for the task',
+			createdBy: mockedUserId,
+			task: task._id
+		})
+
+		const note3 = await Note.create({
+			content: 'Third note for the task',
+			createdBy: mockedUserId,
+			task: task._id
+		})
+
+		// Verify notes and task were created
+		const notesBeforeDelete = await Note.find({ task: task._id })
+		expect(notesBeforeDelete.length).toBe(3)
+		const tasksBeforeDelete = await Task.find({ project: project._id })
+		expect(tasksBeforeDelete.length).toBe(1)
+
+		// Mock Project.findById to use the real model's findById
+		// The middleware still uses the mocked Project, so we need to redirect it to the real model
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		vi.mocked((Project as any).findById).mockImplementation((id: string) => {
+			return RealProject.findById(id);
+		});
+
+		// 3. Delete the project via API
+		const res = await request(app).delete(`/api/projects/${project._id}`)
+
+		expect(res.status).toBe(200)
+		expect(res.body).toBe("Project deleted successfully")
+
+		// 4. Verify project is deleted
+		const deletedProject = await RealProject.findById(project._id)
+		expect(deletedProject).toBeNull()
+
+		// 5. Verify all related tasks are deleted
+		const tasksAfterDelete = await Task.find({ project: project._id })
+		expect(tasksAfterDelete).toHaveLength(0)
+
+		// 6. Verify all related notes are deleted
+		const notesAfterDelete = await Note.find({ task: task._id })
+		expect(notesAfterDelete).toHaveLength(0)
+
+		// 7. Verify specific notes no longer exist
+		const note1Check = await Note.findById(note1._id)
+		const note2Check = await Note.findById(note2._id)
+		const note3Check = await Note.findById(note3._id)
+		expect(note1Check).toBeNull()
+		expect(note2Check).toBeNull()
+		expect(note3Check).toBeNull()
+	}, 10000) // 10 second timeout for database operations
 });
