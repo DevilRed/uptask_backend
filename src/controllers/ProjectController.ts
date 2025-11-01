@@ -51,20 +51,10 @@ export class ProjectController {
 
   static updateProject = async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const project = await Project.findById(id);
-      if (!project) {
-        const error = new Error("Project not found");
-        return res.status(404).json({ error: error.message });
-      }
-      if (project.manager?.toString() !== req.user?.id.toString()) {
-        const error = new Error('The project can be updated by the manager only')
-        return res.status(404).json({ error: error.message })
-      }
-      project.clientName = req.body.clientName
-      project.projectName = req.body.projectName
-      project.description = req.body.description
-      await project.save();
+      req.project.clientName = req.body.clientName
+      req.project.projectName = req.body.projectName
+      req.project.description = req.body.description
+      await req.project.save();
       res.status(200).json("Project updated successfully");
     } catch (error) {
       console.log(error);
@@ -74,17 +64,7 @@ export class ProjectController {
 
   static deleteProject = async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const project = await Project.findById(id);
-      if (!project) {
-        const error = new Error("Project not found");
-        return res.status(404).json({ error: error.message });
-      }
-      if (project.manager?.toString() !== req.user?.id.toString()) {
-        const error = new Error('The project can be deleted by the manager only')
-        return res.status(404).json({ error: error.message })
-      }
-      await project.deleteOne();
+      await req.project.deleteOne();
       res.status(200).json("Project deleted successfully");
     } catch (error) {
       console.log(error);

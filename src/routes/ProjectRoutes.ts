@@ -35,19 +35,21 @@ router.post(
   ProjectController.addProject,
 );
 router.put(
-  "/:id",
-  param("id").isMongoId().withMessage("Invalid project ID"),
+  "/:projectId",
+  param("projectId").isMongoId().withMessage("Invalid project ID"),
   // validate request body
   body("projectName").notEmpty().withMessage("Project name is required"),
   body("clientName").notEmpty().withMessage("Client name is required"),
   body("description").notEmpty().withMessage("Description is required"),
   handleInputErrors,
+  hasAuthorization,
   ProjectController.updateProject,
 );
 router.delete(
-  "/:id",
-  param("id").isMongoId().withMessage("Invalid project ID"),
+  "/:projectId",
+  param("projectId").isMongoId().withMessage("Invalid project ID"),
   handleInputErrors,
+  hasAuthorization,
   ProjectController.deleteProject,
 );
 
