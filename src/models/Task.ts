@@ -1,4 +1,5 @@
 import { Document, model, Schema, Types } from "mongoose";
+import Note from "./Note";
 
 // define an object to act as a dictionary for status attribute
 const taskStatus = {
@@ -46,6 +47,14 @@ export const TaskSchema = new Schema<ITask>(
   },
   { timestamps: true },
 );
+// middleware, remove related notes when task is deleted
+TaskSchema.pre('deleteOne', {document: true}, async function(next) {
+  const taskId = this._id;
+  if(!taskId) return;
+  await Note.deleteMany({ task: taskId });
+  next();
+})
+
 
 const Task = model<ITask>("Task", TaskSchema);
 

@@ -24,6 +24,7 @@ vi.mock('../../src/middleware/auth', () => ({
 import { closeDB, connectDB } from "../../src/config/db";
 import Project from '../../src/models/Project';
 import Task from "../../src/models/Task";
+import Note from "../../src/models/Note";
 import app from "../../src/server";
 
 describe('TaskController', () => {
@@ -32,6 +33,7 @@ describe('TaskController', () => {
 		// clean up existing data
 		await Project.deleteMany({});
 		await Task.deleteMany({});
+		await Note.deleteMany({});
 
 		// create test data, save them to database
 		const project = await Project.create({
@@ -51,6 +53,7 @@ describe('TaskController', () => {
 	afterAll(async () => {
 		await Project.deleteMany({})
 		await Task.deleteMany({})
+		await Note.deleteMany({})
 		await closeDB();
 	});
 
@@ -135,5 +138,70 @@ describe('TaskController', () => {
 			.set('Accept', 'application/json')
 
 		expect(res.text).toEqual("Task status updated")
+	})
+
+	it('DELETE /:projectId/tasks/:id should delete task and all related notes', async () => {
+		// 1. Create a new project and task
+		const project = await Project.create({
+			projectName: 'Note Deletion Test',
+			clientName: 'Test Client',
+			description: 'Test project for note deletion',
+			manager: userId
+		})
+
+		const task = await Task.create({
+			name: 'Task with notes',
+			description: 'Task that will be deleted with notes',
+			project: project._id
+		})
+
+		// 2. Create multiple notes associated with the task
+		const note1 = await Note.create({
+			content: 'First note for the task',
+			createdBy: userId,
+			task: task._id
+		})
+
+		const note2 = await Note.create({
+			content: 'Second note for the task',
+			createdBy: userId,
+			task: task._id
+		})
+
+		const note3 = await Note.create({
+			content: 'Third note for the task',
+			createdBy: userId,
+			task: task._id
+		})
+
+		// Verify notes were created
+		const notesBeforeDelete = await Note.find({ task: task._id })
+		expect(notesBeforeDelete.length).toBe(3)
+
+		// 3. Delete the task via API
+		const res = await request(app).delete(`/api/projects/${project._id}/tasks/${task._id}`)
+
+		expect(res.status).toBe(200)
+		expect(res.text).toEqual("Task deleted succesfully")
+
+		// 4. Verify task is deleted
+		const deletedTask = await Task.findById(task._id)
+		expect(deletedTask).toBeNull()
+
+		// 5. Verify all related notes are deleted
+		const notesAfterDelete = await Note.find({ task: task._id })
+		expect(notesAfterDelete).toHaveLength(0)
+
+		// 6. Verify specific notes no longer exist
+		const note1Check = await Note.findById(note1._id)
+		const note2Check = await Note.findById(note2._id)
+		const note3Check = await Note.findById(note3._id)
+		expect(note1Check).toBeNull()
+		expect(note2Check).toBeNull()
+		expect(note3Check).toBeNull()
+
+		// 7. Verify task was removed from project's tasks array
+		const updatedProject = await Project.findById(project._id)
+		expect(updatedProject?.tasks).not.toContainEqual(task._id)
 	})
 })
